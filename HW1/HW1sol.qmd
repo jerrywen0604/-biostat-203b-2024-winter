@@ -188,14 +188,18 @@ wget -nc http://www.gutenberg.org/cache/epub/42671/pg42671.txt
 ```
 Explain what `wget -nc` does. Do **not** put this text file `pg42671.txt` in Git. Complete the following loop to tabulate the number of times each of the four characters is mentioned using Linux commands.
 ```{bash}
-#| eval: false
+#| eval: true
 wget -nc http://www.gutenberg.org/cache/epub/42671/pg42671.txt
 for char in Elizabeth Jane Lydia Darcy
 do
   echo $char:
-  # some bash commands here
+  grep -o -i $char pg42671.txt | wc -l
 done
 ```
+**Answer** Elizabeth:634
+Jane:293
+Lydia:171
+Darcy:418
 
 2. What's the difference between the following two commands?
 ```{bash}
@@ -208,6 +212,10 @@ and
 echo 'hello, world' >> test2.txt
 ```
 
+**> means:**If test1.txt already exists, this command will overwrite the file with the new content ('hello, world'). In other words, any existing content in test1.txt will be lost.If test1.txt does not exist, it will be created.
+
+**>> means:**If test2.txt already exists, 'hello, world' will be added to the end of the file, preserving any existing content in the file.If test2.txt does not exist, it will be created, and 'hello, world' will be written to it.
+
 3. Using your favorite text editor (e.g., `vi`), type the following and save the file as `middle.sh`:
 ```{bash eval=FALSE}
 #!/bin/sh
@@ -217,20 +225,116 @@ head -n "$2" "$1" | tail -n "$3"
 ```
 Using `chmod` to make the file executable by the owner, and run
 ```{bash}
-#| eval: false
+#| eval: true
 ./middle.sh pg42671.txt 20 5
 ```
 Explain the output. Explain the meaning of `"$1"`, `"$2"`, and `"$3"` in this shell script. Why do we need the first line of the shell script?
+
+**$1** This is the filename $1 from which lines will be selected.
+
+**$2**This means the head command will extract the first $2 lines 
+
+**$3**This tells the tail command to display the last $3 lines out of the lines extracted by the head command.
+
+**The first line** It specifies the interpreter to be used to execute the script
 
 ## Q5. More fun with Linux
 
 Try following commands in Bash and interpret the results: `cal`, `cal 2024`, `cal 9 1752` (anything unusual?), `date`, `hostname`, `arch`, `uname -a`, `uptime`, `who am i`, `who`, `w`, `id`, `last | head`, `echo {con,pre}{sent,fer}{s,ed}`, `time sleep 5`, `history | tail`.
 
+**cal**Displays a calendar of the current month.
 ```{bash}
 #| eval: true
-
+cal
 ```
 
+**cal 2024**Shows the calendar for the entire year 2024.
+```{bash}
+#| eval: true
+cal 2024
+```
+
+**cal 9 1752**Displays the calendar for September 1752
+```{bash}
+#| eval: true
+cal 9 1752
+```
+
+**date**Shows the current date and time.
+```{bash}
+#| eval: true
+date
+```
+**hostname**Displays the name of the current host or system you're working on.
+```{bash}
+#| eval: true
+hostname
+```
+
+**arch**Prints the architecture of the machine 
+```{bash}
+#| eval: true
+arch
+```
+
+**uname -a**Shows all system information
+```{bash}
+#| eval: true
+uname -a
+```
+**uptime**Displays the current uptime of the system
+```{bash}
+#| eval: true
+uptime
+```
+**who am i** maybe used, no function
+```{bash}
+#| eval: true
+who am i
+```
+
+**who**Lists all users currently logged into the system.
+```{bash}
+#| eval: true
+who 
+```
+
+**w**Shows more detailed information including what each user is doing.
+```{bash}
+#| eval: true
+w
+```
+
+**id**Displays user identity information, including user ID (UID), group ID (GID), and group memberships.
+```{bash}
+#| eval: true
+id
+```
+
+**last | head**Shows the most recent login sessions.
+```{bash}
+#| eval: true
+last | head
+```
+
+
+**echo {con,pre}{sent,fer}{s,ed}**This command uses brace expansion to create combinations of the given elements. 
+```{bash}
+#| eval: true
+echo {con,pre}{sent,fer}{s,ed}
+```
+
+**time sleep 5**Executes the sleep command for 5 seconds and then time reports how long the command took to execute. 
+```{bash}
+#| eval: true
+time sleep 5
+```
+
+**history | tail**Lists the most recent commands default 10
+```{bash}
+#| eval: true
+history | tail
+```
 ## Q6. Book
 
 1. Git clone the repository <https://github.com/christophergandrud/Rep-Res-Book> for the book _Reproducible Research with R and RStudio_ to your local machine. 
