@@ -84,13 +84,13 @@ server <- function(input, output) {
     }
     else if (input$VOI == "Age") {
       ggplot(mimic_icu_cohort, aes(x = age_intime)) + 
-        geom_histogram(binwidth = 5,fill="skyblue") +
+        geom_histogram(binwidth = 5,fill="red") +
         labs(title = "Age distribution", x = "age", y = "count") +
         coord_flip()
     }
     else if (input$VOI =="Gender") {
       ggplot(mimic_icu_cohort, aes(x = gender)) + 
-        geom_bar(stat="count",fill="green") +
+        geom_bar(stat="count",fill="skyblue") +
         labs(title = "Gender distribution", x = "gender", y = "count") +
         coord_flip()
     }
