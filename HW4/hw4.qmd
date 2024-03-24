@@ -96,16 +96,24 @@ Connect to the `patients` table.
 
 Connect to the `labevents` table and retrieve a subset that only contain subjects who appear in `icustays_tble` and the lab items listed in HW3. Only keep the last lab measurements before the ICU stay and pivot lab items to become variables/columns. Write all steps in _one_ chain of pipes.
 ```{r}
-labevents_tble  <- tbl(con_bq, "labevents") %>% 
-  left_join(icustays_tble, by = c("subject_id", "hadm_id")) %>% 
-  left_join(tbl(con_bq, "d_labitems") , by ="itemid") %>% 
-  filter(itemid %in% c(50912,50931,50971, 50983, 50902, 50882, 51221, 51301)) %>% 
-  filter(storetime < intime) %>%
-  arrange(subject_id, desc(storetime))%>% 
-  group_by(subject_id, itemid) %>% 
-  slice_max(order_by = storetime, n = 1) %>% 
-  pivot_wider(names_from = itemid, values_from = valuenum) %>% 
-  ungroup() %>% 
+labevents_tble <- tbl(con_bq, "labevents") |>
+  semi_join(icustays_tble, by = "subject_id") |>
+  filter(itemid %in% 
+           c(50912, 50971, 50983, 50902, 50882, 51221, 51301, 50931)) |>
+  left_join(labevents_d_tble<-tbl(con_bq, "d_labitems")|>
+  filter(itemid %in% 
+           c(50912, 50971, 50983, 50902, 50882, 51221, 51301, 50931)) 
+  %>% select(itemid, label), by = c("itemid" = "itemid")) |>
+  rename(measure = label) |>
+  left_join(select(
+    icustays_tble,subject_id,stay_id,intime), 
+    by = "subject_id") |>
+  filter(storetime < intime) |>
+  group_by(subject_id, stay_id, measure) |>
+  filter(storetime == max(storetime)) |>
+  ungroup()|>
+  select(subject_id, stay_id, measure, valuenum) |>
+  pivot_wider(names_from = measure, values_from = valuenum) |>
   print(width = Inf)
 ```
 
@@ -113,18 +121,22 @@ labevents_tble  <- tbl(con_bq, "labevents") %>%
 
 Connect to `chartevents` table and retrieve a subset that only contain subjects who appear in `icustays_tble` and the chart events listed in HW3. Only keep the first chart events during ICU stay and pivot chart events to become variables/columns. Write all steps in _one_ chain of pipes.
 ```{r}
-
-
-chartevents_tble <-tbl(con_bq, "chartevents") %>% 
-   filter(itemid %in% c(220045,220179,220180,223761,220210)) %>% 
-  left_join(tbl(con_bq, "d_items"), by = "itemid") %>%
-  arrange(subject_id, charttime) %>%
-  left_join(icustays_tble, by = c("subject_id","hadm_id","stay_id")) %>%
-  group_by(subject_id,stay_id,label) %>%  
-  filter(charttime >= intime & charttime <= outtime) %>%
-   slice_min(order_by = charttime, n = 1) %>%
-  ungroup() %>%
-  pivot_wider(names_from = itemid, values_from = valuenum) %>%
+chartevents_tble <- tbl(con_bq, "chartevents") |>
+  semi_join(icustays_tble, by = "subject_id") |>
+  filter(itemid %in% c(220045, 220179, 220180, 223761, 220210))|>
+  left_join(chartevents_d_tble<-tbl(con_bq, "d_items")|>
+  filter(itemid %in% c(220045, 220179, 220180, 223761, 220210)) 
+  %>% select(itemid, label), by = c("itemid" = "itemid")) |>
+  rename(vital = label) |>
+  left_join(select(
+    icustays_tble,subject_id,intime,outtime),
+            by = "subject_id")|>
+  filter(charttime >= intime & charttime <= outtime) |>
+  group_by(subject_id, stay_id, vital) |>
+  filter(charttime == min(charttime)) |>
+  ungroup() |>
+  select(subject_id, stay_id, vital, valuenum) |>
+  pivot_wider(names_from = vital, values_from = valuenum) |>
   print(width = Inf)
 ```
 
